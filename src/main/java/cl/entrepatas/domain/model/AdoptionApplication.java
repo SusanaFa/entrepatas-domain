@@ -16,10 +16,20 @@ public class AdoptionApplication {
     }
 
     public void approve() {
+        if (status != ApplicationStatus.PENDING) {
+            throw new InvalidStatusTransitionException(
+                    "Only pending applications can be approved");
+        }
+
         this.status = ApplicationStatus.APPROVED;
     }
 
     public void reject() {
+        if (status != ApplicationStatus.PENDING) {
+            throw new InvalidStatusTransitionException(
+                    "Only pending applications can be rejected");
+        }
+
         this.status = ApplicationStatus.REJECTED;
     }
 
