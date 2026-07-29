@@ -1,8 +1,10 @@
 # Entre Patas Domain
 
-Core de dominio en Java puro para gestionar solicitudes de adopción de mascotas.
+Core de dominio en Java 17 para modelar reglas del proceso de adopción de mascotas.
 
-Este proyecto corresponde al Hito 1 y demuestra el modelado de reglas de negocio sin dependencias de frameworks, bases de datos ni componentes web.
+Este repositorio corresponde a un ejercicio práctico de profundización en Java, diseño de dominio y testing automatizado. Implementa reglas de negocio sin depender de frameworks web, bases de datos o servicios externos.
+
+Forma parte del proyecto [Entre Patas y Hogares](https://github.com/SusanaFa/api-entrepatas).
 
 ## Objetivo
 
@@ -16,7 +18,7 @@ El dominio permite:
 
 ## Arquitectura
 
-El proyecto implementa un core de dominio puro siguiendo principios de Clean Architecture y Ports and Adapters.
+El proyecto mantiene el dominio independiente de frameworks y aplica una separación inspirada en Clean Architecture y Ports and Adapters. El repositorio define un puerto de salida que puede ser implementado posteriormente por una base de datos, una API externa o un adaptador en memoria.
 
 ```text
 AdoptionApplicationService
@@ -33,7 +35,7 @@ External implementation or test mock
 ```text
 entrepatas-domain/
 ├── src/main/java/cl/entrepatas/domain/
-│   ├── model/              # Entidades y Value Objects
+│   ├── model/              # Entidades, estados y excepciones del dominio
 │   │   ├── AdoptionApplication.java
 │   │   ├── ApplicationStatus.java
 │   │   └── InvalidStatusTransitionException.java
@@ -51,13 +53,19 @@ entrepatas-domain/
 
 ## Dependencias
 
-El proyecto utiliza únicamente:
+El dominio no tiene dependencias de ejecución externas. Para testing y control de calidad utiliza:
 
-- **JUnit 5** (testing)
-- **Mockito** (testing)
-- **JaCoCo** (testing)
-
+- **JUnit 5**: pruebas unitarias.
+- **Mockito**: simulación del puerto de persistencia.
+- **JaCoCo**: medición y validación de cobertura.
+- **Maven Surefire**: ejecución de pruebas.
+- 
 No hay dependencias de frameworks pesados, bases de datos ni frameworks web.
+
+## Requisitos
+
+- Java 17 o superior.
+- Maven 3.9 o superior.
 
 ## Ejecución de Tests
 
@@ -107,9 +115,6 @@ Para agregar nuevas funcionalidades:
 3. Implementar los adaptadores correspondientes en capas externas.
 4. Agregar tests en `src/test/java/cl/entrepatas/domain/model/` o `src/test/java/cl/entrepatas/domain/service/` según corresponda.
 
-## Licencia
-
-MIT
 
 ## Autor
 
