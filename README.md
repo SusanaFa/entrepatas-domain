@@ -27,7 +27,7 @@ AdoptionApplicationService
 AdoptionApplicationRepository
             |
             v
-External implementation or test mock
+Implementación externa o mock de prueba
 ```
 
 ## Estructura del Proyecto
@@ -59,7 +59,7 @@ El dominio no tiene dependencias de ejecución externas. Para testing y control 
 - **Mockito**: simulación del puerto de persistencia.
 - **JaCoCo**: medición y validación de cobertura.
 - **Maven Surefire**: ejecución de pruebas.
-- 
+
 No hay dependencias de frameworks pesados, bases de datos ni frameworks web.
 
 ## Requisitos
