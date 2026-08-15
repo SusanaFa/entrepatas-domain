@@ -116,7 +116,7 @@ El dominio no tiene dependencias de ejecución externas. Para testing y control 
 - **JaCoCo**: medición y validación de cobertura.
 - **Maven Surefire**: ejecución de pruebas.
 
-El proyecto no utiliza Spring, JPA, bases de datos ni adaptadores externos.
+El proyecto no utiliza Spring, JPA, bases de datos ni servicios externos.
 
 ## Requisitos
 
