@@ -1,4 +1,4 @@
-package cl.entrepatas.domain.service;
+package cl.entrepatas.application.usecase;
 
 import cl.entrepatas.domain.entity.AdoptionApplication;
 import cl.entrepatas.domain.exception.DuplicateApplicationException;
@@ -7,11 +7,11 @@ import cl.entrepatas.domain.valueobject.AdoptionApplicationId;
 import cl.entrepatas.domain.valueobject.ApplicantEmail;
 import cl.entrepatas.domain.valueobject.PetId;
 
-public class AdoptionApplicationService {
+public class CreateAdoptionApplicationUseCase {
 
     private final AdoptionApplicationRepository repository;
 
-    public AdoptionApplicationService(AdoptionApplicationRepository repository) {
+    public CreateAdoptionApplicationUseCase(AdoptionApplicationRepository repository) {
         this.repository = repository;
     }
 
