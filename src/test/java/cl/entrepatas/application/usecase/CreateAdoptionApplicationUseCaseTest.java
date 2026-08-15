@@ -1,4 +1,4 @@
-package cl.entrepatas.domain.service;
+package cl.entrepatas.application.usecase;
 
 import org.junit.jupiter.api.function.Executable;
 
@@ -26,16 +26,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AdoptionApplicationServiceTest {
+class CreateAdoptionApplicationUseCaseTest {
 
         @Mock
         private AdoptionApplicationRepository repository;
 
-        private AdoptionApplicationService service;
+        private CreateAdoptionApplicationUseCase useCase;
 
         @BeforeEach
         void setUp() {
-                service = new AdoptionApplicationService(repository);
+                useCase = new CreateAdoptionApplicationUseCase(repository);
         }
 
         @Test
@@ -55,7 +55,7 @@ class AdoptionApplicationServiceTest {
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // Act
-                AdoptionApplication result = service.createApplication(
+                AdoptionApplication result = useCase.createApplication(
                                 applicationId,
                                 petId,
                                 applicantEmail);
@@ -88,7 +88,7 @@ class AdoptionApplicationServiceTest {
                                 applicantEmail)).thenReturn(true);
 
                 // Act
-                Executable action = () -> service.createApplication(
+                Executable action = () -> useCase.createApplication(
                                 applicationId,
                                 petId,
                                 applicantEmail);
