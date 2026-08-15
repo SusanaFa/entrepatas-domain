@@ -9,6 +9,9 @@ import cl.entrepatas.domain.entity.AdoptionApplication;
 import cl.entrepatas.domain.exception.DuplicateApplicationException;
 import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
 import cl.entrepatas.domain.valueobject.ApplicationStatus;
+import cl.entrepatas.domain.valueobject.AdoptionApplicationId;
+import cl.entrepatas.domain.valueobject.ApplicantEmail;
+import cl.entrepatas.domain.valueobject.PetId;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,8 +41,11 @@ class AdoptionApplicationServiceTest {
         @Test
         void shouldCreateAndSaveApplicationWhenItDoesNotExist() {
                 // Arrange
-                String petId = "pet-001";
-                String applicantEmail = "applicant@example.com";
+                AdoptionApplicationId applicationId = new AdoptionApplicationId("application-001");
+
+                PetId petId = new PetId("pet-001");
+
+                ApplicantEmail applicantEmail = new ApplicantEmail("applicant@example.com");
 
                 when(repository.existsByPetIdAndApplicantEmail(
                                 petId,
@@ -49,10 +55,14 @@ class AdoptionApplicationServiceTest {
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // Act
-                AdoptionApplication result = service.createApplication(petId, applicantEmail);
+                AdoptionApplication result = service.createApplication(
+                                applicationId,
+                                petId,
+                                applicantEmail);
 
                 // Assert
                 assertNotNull(result);
+                assertEquals(applicationId, result.getId());
                 assertEquals(petId, result.getPetId());
                 assertEquals(applicantEmail, result.getApplicantEmail());
                 assertEquals(ApplicationStatus.PENDING, result.getStatus());
@@ -67,15 +77,21 @@ class AdoptionApplicationServiceTest {
         @Test
         void shouldThrowExceptionWhenApplicationAlreadyExists() {
                 // Arrange
-                String petId = "pet-001";
-                String applicantEmail = "applicant@example.com";
+                AdoptionApplicationId applicationId = new AdoptionApplicationId("application-001");
+
+                PetId petId = new PetId("pet-001");
+
+                ApplicantEmail applicantEmail = new ApplicantEmail("applicant@example.com");
 
                 when(repository.existsByPetIdAndApplicantEmail(
                                 petId,
                                 applicantEmail)).thenReturn(true);
 
                 // Act
-                Executable action = () -> service.createApplication(petId, applicantEmail);
+                Executable action = () -> service.createApplication(
+                                applicationId,
+                                petId,
+                                applicantEmail);
 
                 // Assert
                 DuplicateApplicationException exception = assertThrows(
