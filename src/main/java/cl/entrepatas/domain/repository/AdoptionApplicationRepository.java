@@ -1,6 +1,6 @@
-package cl.entrepatas.domain.port;
+package cl.entrepatas.domain.repository;
 
-import cl.entrepatas.domain.model.AdoptionApplication;
+import cl.entrepatas.domain.entity.AdoptionApplication;
 
 /**
  * Defines the operations required to store adoption applications.

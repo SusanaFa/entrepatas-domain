@@ -1,8 +1,11 @@
 
-package cl.entrepatas.domain.model;
+package cl.entrepatas.domain.entity;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
+import cl.entrepatas.domain.exception.InvalidStatusTransitionException;
+import cl.entrepatas.domain.valueobject.ApplicationStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
