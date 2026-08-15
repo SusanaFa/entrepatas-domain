@@ -1,4 +1,4 @@
-package cl.entrepatas.domain.model;
+package cl.entrepatas.domain.exception;
 
 public class InvalidStatusTransitionException extends RuntimeException {
 

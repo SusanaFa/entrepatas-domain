@@ -1,7 +1,8 @@
 package cl.entrepatas.domain.service;
 
-import cl.entrepatas.domain.model.AdoptionApplication;
-import cl.entrepatas.domain.port.AdoptionApplicationRepository;
+import cl.entrepatas.domain.entity.AdoptionApplication;
+import cl.entrepatas.domain.exception.DuplicateApplicationException;
+import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
 
 public class AdoptionApplicationService {
 

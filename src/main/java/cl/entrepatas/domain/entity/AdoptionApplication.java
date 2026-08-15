@@ -1,4 +1,7 @@
-package cl.entrepatas.domain.model;
+package cl.entrepatas.domain.entity;
+
+import cl.entrepatas.domain.exception.InvalidStatusTransitionException;
+import cl.entrepatas.domain.valueobject.ApplicationStatus;
 
 /**
  * Represents an application submitted to adopt a pet.

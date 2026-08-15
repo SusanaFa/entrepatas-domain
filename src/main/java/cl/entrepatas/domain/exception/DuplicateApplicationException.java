@@ -1,4 +1,4 @@
-package cl.entrepatas.domain.service;
+package cl.entrepatas.domain.exception;
 
 /**
  * Thrown when an adoption application already exists

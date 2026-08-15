@@ -1,4 +1,4 @@
-package cl.entrepatas.domain.model;
+package cl.entrepatas.domain.valueobject;
 
 /**
  * Represents the possible states of an adoption application.
