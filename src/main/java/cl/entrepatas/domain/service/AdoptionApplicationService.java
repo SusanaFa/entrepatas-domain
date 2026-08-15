@@ -3,19 +3,23 @@ package cl.entrepatas.domain.service;
 import cl.entrepatas.domain.entity.AdoptionApplication;
 import cl.entrepatas.domain.exception.DuplicateApplicationException;
 import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
+import cl.entrepatas.domain.valueobject.AdoptionApplicationId;
+import cl.entrepatas.domain.valueobject.ApplicantEmail;
+import cl.entrepatas.domain.valueobject.PetId;
 
 public class AdoptionApplicationService {
 
     private final AdoptionApplicationRepository repository;
 
-    public AdoptionApplicationService(
-            AdoptionApplicationRepository repository) {
+    public AdoptionApplicationService(AdoptionApplicationRepository repository) {
         this.repository = repository;
     }
 
     public AdoptionApplication createApplication(
-            String petId,
-            String applicantEmail) {
+            AdoptionApplicationId applicationId,
+            PetId petId,
+            ApplicantEmail applicantEmail) {
+
         boolean applicationExists = repository.existsByPetIdAndApplicantEmail(
                 petId,
                 applicantEmail);
@@ -25,7 +29,10 @@ public class AdoptionApplicationService {
                     "An application already exists for this pet and applicant");
         }
 
-        AdoptionApplication application = new AdoptionApplication(petId, applicantEmail);
+        AdoptionApplication application = new AdoptionApplication(
+                applicationId,
+                petId,
+                applicantEmail);
 
         return repository.save(application);
     }

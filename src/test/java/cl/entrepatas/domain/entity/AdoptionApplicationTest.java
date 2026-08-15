@@ -6,6 +6,9 @@ import org.junit.jupiter.api.function.Executable;
 
 import cl.entrepatas.domain.exception.InvalidStatusTransitionException;
 import cl.entrepatas.domain.valueobject.ApplicationStatus;
+import cl.entrepatas.domain.valueobject.AdoptionApplicationId;
+import cl.entrepatas.domain.valueobject.ApplicantEmail;
+import cl.entrepatas.domain.valueobject.PetId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,15 +16,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AdoptionApplicationTest {
 
     @Test
-    void shouldCreateApplicationWithPendingStatus() {
+    void shouldCreateApplicationWithIdentityAndPendingStatus() {
         // Arrange
-        String petId = "pet-001";
-        String applicantEmail = "applicant@example.com";
+        AdoptionApplicationId applicationId = new AdoptionApplicationId("application-001");
+
+        PetId petId = new PetId("pet-001");
+
+        ApplicantEmail applicantEmail = new ApplicantEmail("applicant@example.com");
 
         // Act
-        AdoptionApplication application = new AdoptionApplication(petId, applicantEmail);
+        AdoptionApplication application = new AdoptionApplication(
+                applicationId,
+                petId,
+                applicantEmail);
 
         // Assert
+        assertEquals(applicationId, application.getId());
         assertEquals(petId, application.getPetId());
         assertEquals(applicantEmail, application.getApplicantEmail());
         assertEquals(ApplicationStatus.PENDING, application.getStatus());
@@ -30,7 +40,7 @@ class AdoptionApplicationTest {
     @Test
     void shouldApprovePendingApplication() {
         // Arrange
-        AdoptionApplication application = new AdoptionApplication("pet-001", "applicant@example.com");
+        AdoptionApplication application = createPendingApplication();
 
         // Act
         application.approve();
@@ -42,7 +52,7 @@ class AdoptionApplicationTest {
     @Test
     void shouldRejectPendingApplication() {
         // Arrange
-        AdoptionApplication application = new AdoptionApplication("pet-001", "applicant@example.com");
+        AdoptionApplication application = createPendingApplication();
 
         // Act
         application.reject();
@@ -54,7 +64,7 @@ class AdoptionApplicationTest {
     @Test
     void shouldThrowExceptionWhenApprovingRejectedApplication() {
         // Arrange
-        AdoptionApplication application = new AdoptionApplication("pet-001", "applicant@example.com");
+        AdoptionApplication application = createPendingApplication();
 
         application.reject();
 
@@ -78,7 +88,7 @@ class AdoptionApplicationTest {
     @Test
     void shouldThrowExceptionWhenRejectingApprovedApplication() {
         // Arrange
-        AdoptionApplication application = new AdoptionApplication("pet-001", "applicant@example.com");
+        AdoptionApplication application = createPendingApplication();
 
         application.approve();
 
@@ -97,6 +107,13 @@ class AdoptionApplicationTest {
         assertEquals(
                 ApplicationStatus.APPROVED,
                 application.getStatus());
+    }
+
+    private AdoptionApplication createPendingApplication() {
+        return new AdoptionApplication(
+                new AdoptionApplicationId("application-001"),
+                new PetId("pet-001"),
+                new ApplicantEmail("applicant@example.com"));
     }
 
 }
