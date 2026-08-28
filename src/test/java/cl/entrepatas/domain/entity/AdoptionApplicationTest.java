@@ -15,105 +15,131 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AdoptionApplicationTest {
 
-    @Test
-    void shouldCreateApplicationWithIdentityAndPendingStatus() {
-        // Arrange
-        AdoptionApplicationId applicationId = new AdoptionApplicationId("application-001");
+        @Test
+        void shouldCreateApplicationWithIdentityAndPendingStatus() {
+                // Arrange
+                AdoptionApplicationId applicationId = new AdoptionApplicationId("application-001");
 
-        PetId petId = new PetId("pet-001");
+                PetId petId = new PetId("pet-001");
 
-        ApplicantEmail applicantEmail = new ApplicantEmail("applicant@example.com");
+                ApplicantEmail applicantEmail = new ApplicantEmail("applicant@example.com");
 
-        // Act
-        AdoptionApplication application = new AdoptionApplication(
-                applicationId,
-                petId,
-                applicantEmail);
+                // Act
+                AdoptionApplication application = new AdoptionApplication(
+                                applicationId,
+                                petId,
+                                applicantEmail);
 
-        // Assert
-        assertEquals(applicationId, application.getId());
-        assertEquals(petId, application.getPetId());
-        assertEquals(applicantEmail, application.getApplicantEmail());
-        assertEquals(ApplicationStatus.PENDING, application.getStatus());
-    }
+                // Assert
+                assertEquals(applicationId, application.getId());
+                assertEquals(petId, application.getPetId());
+                assertEquals(applicantEmail, application.getApplicantEmail());
+                assertEquals(ApplicationStatus.PENDING, application.getStatus());
+        }
 
-    @Test
-    void shouldApprovePendingApplication() {
-        // Arrange
-        AdoptionApplication application = createPendingApplication();
+        @Test
+        void shouldApprovePendingApplication() {
+                // Arrange
+                AdoptionApplication application = createPendingApplication();
 
-        // Act
-        application.approve();
+                // Act
+                application.approve();
 
-        // Assert
-        assertEquals(ApplicationStatus.APPROVED, application.getStatus());
-    }
+                // Assert
+                assertEquals(ApplicationStatus.APPROVED, application.getStatus());
+        }
 
-    @Test
-    void shouldRejectPendingApplication() {
-        // Arrange
-        AdoptionApplication application = createPendingApplication();
+        @Test
+        void shouldRejectPendingApplication() {
+                // Arrange
+                AdoptionApplication application = createPendingApplication();
 
-        // Act
-        application.reject();
+                // Act
+                application.reject();
 
-        // Assert
-        assertEquals(ApplicationStatus.REJECTED, application.getStatus());
-    }
+                // Assert
+                assertEquals(ApplicationStatus.REJECTED, application.getStatus());
+        }
 
-    @Test
-    void shouldThrowExceptionWhenApprovingRejectedApplication() {
-        // Arrange
-        AdoptionApplication application = createPendingApplication();
+        @Test
+        void shouldThrowExceptionWhenApprovingRejectedApplication() {
+                // Arrange
+                AdoptionApplication application = createPendingApplication();
 
-        application.reject();
+                application.reject();
 
-        // Act
-        Executable action = application::approve;
+                // Act
+                Executable action = application::approve;
 
-        // Assert
-        InvalidStatusTransitionException exception = assertThrows(
-                InvalidStatusTransitionException.class,
-                action);
+                // Assert
+                InvalidStatusTransitionException exception = assertThrows(
+                                InvalidStatusTransitionException.class,
+                                action);
 
-        assertEquals(
-                "Only pending applications can be approved",
-                exception.getMessage());
+                assertEquals(
+                                "Only pending applications can be approved",
+                                exception.getMessage());
 
-        assertEquals(
-                ApplicationStatus.REJECTED,
-                application.getStatus());
-    }
+                assertEquals(
+                                ApplicationStatus.REJECTED,
+                                application.getStatus());
+        }
 
-    @Test
-    void shouldThrowExceptionWhenRejectingApprovedApplication() {
-        // Arrange
-        AdoptionApplication application = createPendingApplication();
+        @Test
+        void shouldThrowExceptionWhenRejectingApprovedApplication() {
+                // Arrange
+                AdoptionApplication application = createPendingApplication();
 
-        application.approve();
+                application.approve();
 
-        // Act
-        Executable action = application::reject;
+                // Act
+                Executable action = application::reject;
 
-        // Assert
-        InvalidStatusTransitionException exception = assertThrows(
-                InvalidStatusTransitionException.class,
-                action);
+                // Assert
+                InvalidStatusTransitionException exception = assertThrows(
+                                InvalidStatusTransitionException.class,
+                                action);
 
-        assertEquals(
-                "Only pending applications can be rejected",
-                exception.getMessage());
+                assertEquals(
+                                "Only pending applications can be rejected",
+                                exception.getMessage());
 
-        assertEquals(
-                ApplicationStatus.APPROVED,
-                application.getStatus());
-    }
+                assertEquals(
+                                ApplicationStatus.APPROVED,
+                                application.getStatus());
+        }
 
-    private AdoptionApplication createPendingApplication() {
-        return new AdoptionApplication(
-                new AdoptionApplicationId("application-001"),
-                new PetId("pet-001"),
-                new ApplicantEmail("applicant@example.com"));
-    }
+        @Test
+        void shouldRestoreApprovedApplication() {
+                // Act
+                AdoptionApplication application = AdoptionApplication.restore(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"),
+                                ApplicationStatus.APPROVED);
+
+                // Assert
+                assertEquals(ApplicationStatus.APPROVED, application.getStatus());
+        }
+
+        @Test
+        void shouldRestoreRejectedApplication() {
+                // Act
+                AdoptionApplication application = AdoptionApplication.restore(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"),
+                                ApplicationStatus.REJECTED);
+
+                // Assert
+                assertEquals(ApplicationStatus.REJECTED, application.getStatus());
+        }
+
+        private AdoptionApplication createPendingApplication() {
+                return new AdoptionApplication(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"));
+        }
 
 }

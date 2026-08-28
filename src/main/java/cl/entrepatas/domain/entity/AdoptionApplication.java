@@ -23,6 +23,15 @@ public class AdoptionApplication {
             PetId petId,
             ApplicantEmail applicantEmail) {
 
+        this(id, petId, applicantEmail, ApplicationStatus.PENDING);
+    }
+
+    private AdoptionApplication(
+            AdoptionApplicationId id,
+            PetId petId,
+            ApplicantEmail applicantEmail,
+            ApplicationStatus status) {
+
         this.id = Objects.requireNonNull(
                 id,
                 "Adoption application ID cannot be null");
@@ -35,7 +44,18 @@ public class AdoptionApplication {
                 applicantEmail,
                 "Applicant email cannot be null");
 
-        this.status = ApplicationStatus.PENDING;
+        this.status = Objects.requireNonNull(
+                status,
+                "Adoption application status cannot be null");
+    }
+
+    public static AdoptionApplication restore(
+            AdoptionApplicationId id,
+            PetId petId,
+            ApplicantEmail applicantEmail,
+            ApplicationStatus status) {
+
+        return new AdoptionApplication(id, petId, applicantEmail, status);
     }
 
     public void approve() {
