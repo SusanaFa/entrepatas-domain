@@ -1,6 +1,7 @@
 package cl.entrepatas.infrastructure.config;
 
 import cl.entrepatas.application.usecase.CreateAdoptionApplicationUseCase;
+import cl.entrepatas.application.usecase.GetAdoptionApplicationUseCase;
 import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
 import cl.entrepatas.infrastructure.persistence.adapter.JpaAdoptionApplicationRepositoryAdapter;
 import cl.entrepatas.infrastructure.persistence.mapper.AdoptionApplicationPersistenceMapper;
@@ -33,4 +34,12 @@ public class ApplicationConfiguration {
 
         return new CreateAdoptionApplicationUseCase(repository);
     }
+
+    @Bean
+    public GetAdoptionApplicationUseCase getAdoptionApplicationUseCase(
+            AdoptionApplicationRepository repository) {
+
+        return new GetAdoptionApplicationUseCase(repository);
+    }
+
 }
