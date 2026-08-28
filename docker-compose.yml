@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: entrepatas
+      POSTGRES_USER: entrepatas
+      POSTGRES_PASSWORD: entrepatas_dev
+    ports:
+      - "15432:5432"
+    volumes:
+      - entrepatas_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U entrepatas -d entrepatas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  entrepatas_postgres_data:
