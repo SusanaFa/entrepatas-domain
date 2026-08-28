@@ -2,6 +2,7 @@ package cl.entrepatas.infrastructure.repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import cl.entrepatas.domain.entity.AdoptionApplication;
 import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
@@ -22,6 +23,13 @@ public class InMemoryAdoptionApplicationRepository
                 .anyMatch(application -> application.getPetId().equals(petId)
                         && application.getApplicantEmail()
                                 .equals(applicantEmail));
+    }
+
+    @Override
+    public Optional<AdoptionApplication> findById(
+            AdoptionApplicationId applicationId) {
+
+        return Optional.ofNullable(applications.get(applicationId));
     }
 
     @Override
