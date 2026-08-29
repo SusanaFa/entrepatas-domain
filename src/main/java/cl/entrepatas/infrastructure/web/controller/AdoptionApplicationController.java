@@ -48,7 +48,7 @@ public class AdoptionApplicationController {
 
     @GetMapping("/{id}")
     public AdoptionApplicationResponse getById(
-            @PathVariable String id) {
+            @PathVariable("id") String id) {
 
         AdoptionApplication application = getUseCase.getApplication(
                 new AdoptionApplicationId(id));
