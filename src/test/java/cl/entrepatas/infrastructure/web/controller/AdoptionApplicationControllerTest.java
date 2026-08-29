@@ -165,6 +165,17 @@ class AdoptionApplicationControllerTest {
     }
 
     @Test
+    void shouldReturnNotFoundWhenResourceDoesNotExist() throws Exception {
+        mockMvc.perform(get("/unknown-resource"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Resource not found"))
+                .andExpect(jsonPath("$.path").value("/unknown-resource"));
+    }
+
+    @Test
     void shouldReturnInternalServerErrorWhenUnexpectedErrorOccurs()
             throws Exception {
         when(getUseCase.getApplication(
