@@ -1,7 +1,10 @@
 package cl.entrepatas.infrastructure.persistence.adapter;
 
+import java.util.Optional;
+
 import cl.entrepatas.domain.entity.AdoptionApplication;
 import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
+import cl.entrepatas.domain.valueobject.AdoptionApplicationId;
 import cl.entrepatas.domain.valueobject.ApplicantEmail;
 import cl.entrepatas.domain.valueobject.PetId;
 import cl.entrepatas.infrastructure.persistence.entity.AdoptionApplicationJpaEntity;
@@ -30,6 +33,14 @@ public class JpaAdoptionApplicationRepositoryAdapter
         return repository.existsByPetIdAndApplicantEmail(
                 petId.value(),
                 applicantEmail.value());
+    }
+
+    @Override
+    public Optional<AdoptionApplication> findById(
+            AdoptionApplicationId applicationId) {
+
+        return repository.findById(applicationId.value())
+                .map(mapper::toDomain);
     }
 
     @Override

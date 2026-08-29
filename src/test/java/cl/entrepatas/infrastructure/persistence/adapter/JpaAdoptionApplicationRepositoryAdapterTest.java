@@ -19,77 +19,113 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 @ExtendWith(MockitoExtension.class)
 class JpaAdoptionApplicationRepositoryAdapterTest {
 
-    @Mock
-    private SpringDataAdoptionApplicationRepository repository;
+        @Mock
+        private SpringDataAdoptionApplicationRepository repository;
 
-    @Mock
-    private AdoptionApplicationPersistenceMapper mapper;
+        @Mock
+        private AdoptionApplicationPersistenceMapper mapper;
 
-    @InjectMocks
-    private JpaAdoptionApplicationRepositoryAdapter adapter;
+        @InjectMocks
+        private JpaAdoptionApplicationRepositoryAdapter adapter;
 
-    @Test
-    void shouldCheckDuplicateApplicationUsingStringValues() {
-        // Arrange
-        PetId petId = new PetId("pet-001");
+        @Test
+        void shouldCheckDuplicateApplicationUsingStringValues() {
+                // Arrange
+                PetId petId = new PetId("pet-001");
 
-        ApplicantEmail applicantEmail = new ApplicantEmail("applicant@example.com");
+                ApplicantEmail applicantEmail = new ApplicantEmail("applicant@example.com");
 
-        when(repository.existsByPetIdAndApplicantEmail(
-                "pet-001",
-                "applicant@example.com"))
-                .thenReturn(true);
+                when(repository.existsByPetIdAndApplicantEmail(
+                                "pet-001",
+                                "applicant@example.com"))
+                                .thenReturn(true);
 
-        // Act
-        boolean exists = adapter.existsByPetIdAndApplicantEmail(
-                petId,
-                applicantEmail);
+                // Act
+                boolean exists = adapter.existsByPetIdAndApplicantEmail(
+                                petId,
+                                applicantEmail);
 
-        // Assert
-        assertTrue(exists);
+                // Assert
+                assertTrue(exists);
 
-        verify(repository).existsByPetIdAndApplicantEmail(
-                "pet-001",
-                "applicant@example.com");
-    }
+                verify(repository).existsByPetIdAndApplicantEmail(
+                                "pet-001",
+                                "applicant@example.com");
+        }
 
-    @Test
-    void shouldSaveApplicationUsingMapperAndSpringDataRepository() {
-        // Arrange
-        AdoptionApplication application = new AdoptionApplication(
-                new AdoptionApplicationId("application-001"),
-                new PetId("pet-001"),
-                new ApplicantEmail("applicant@example.com"));
+        @Test
+        void shouldSaveApplicationUsingMapperAndSpringDataRepository() {
+                // Arrange
+                AdoptionApplication application = new AdoptionApplication(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"));
 
-        application.approve();
+                application.approve();
 
-        AdoptionApplicationJpaEntity entity = new AdoptionApplicationJpaEntity(
-                "application-001",
-                "pet-001",
-                "applicant@example.com",
-                ApplicationStatus.APPROVED);
+                AdoptionApplicationJpaEntity entity = new AdoptionApplicationJpaEntity(
+                                "application-001",
+                                "pet-001",
+                                "applicant@example.com",
+                                ApplicationStatus.APPROVED);
 
-        AdoptionApplication savedApplication = AdoptionApplication.restore(
-                new AdoptionApplicationId("application-001"),
-                new PetId("pet-001"),
-                new ApplicantEmail("applicant@example.com"),
-                ApplicationStatus.APPROVED);
+                AdoptionApplication savedApplication = AdoptionApplication.restore(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"),
+                                ApplicationStatus.APPROVED);
 
-        when(mapper.toEntity(application)).thenReturn(entity);
-        when(repository.save(entity)).thenReturn(entity);
-        when(mapper.toDomain(entity)).thenReturn(savedApplication);
+                when(mapper.toEntity(application)).thenReturn(entity);
+                when(repository.save(entity)).thenReturn(entity);
+                when(mapper.toDomain(entity)).thenReturn(savedApplication);
 
-        // Act
-        AdoptionApplication result = adapter.save(application);
+                // Act
+                AdoptionApplication result = adapter.save(application);
 
-        // Assert
-        assertSame(savedApplication, result);
+                // Assert
+                assertSame(savedApplication, result);
 
-        verify(mapper).toEntity(application);
-        verify(repository).save(entity);
-        verify(mapper).toDomain(entity);
-    }
+                verify(mapper).toEntity(application);
+                verify(repository).save(entity);
+                verify(mapper).toDomain(entity);
+        }
+
+        @Test
+        void shouldFindApplicationByIdUsingSpringDataRepository() {
+                // Arrange
+                AdoptionApplicationId applicationId = new AdoptionApplicationId("application-001");
+
+                AdoptionApplicationJpaEntity entity = new AdoptionApplicationJpaEntity(
+                                "application-001",
+                                "pet-001",
+                                "applicant@example.com",
+                                ApplicationStatus.APPROVED);
+
+                AdoptionApplication expectedApplication = AdoptionApplication.restore(
+                                applicationId,
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"),
+                                ApplicationStatus.APPROVED);
+
+                when(repository.findById("application-001"))
+                                .thenReturn(Optional.of(entity));
+
+                when(mapper.toDomain(entity))
+                                .thenReturn(expectedApplication);
+
+                // Act
+                Optional<AdoptionApplication> result = adapter.findById(applicationId);
+
+                // Assert
+                assertTrue(result.isPresent());
+                assertSame(expectedApplication, result.orElseThrow());
+
+                verify(repository).findById("application-001");
+                verify(mapper).toDomain(entity);
+        }
 }

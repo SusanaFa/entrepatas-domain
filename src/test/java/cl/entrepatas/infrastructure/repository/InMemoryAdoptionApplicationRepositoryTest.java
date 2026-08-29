@@ -13,79 +13,99 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class InMemoryAdoptionApplicationRepositoryTest {
 
-    @Test
-    void shouldSaveAndFindApplicationByPetIdAndApplicantEmail() {
-        // Arrange
-        InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
+        @Test
+        void shouldSaveAndFindApplicationByPetIdAndApplicantEmail() {
+                // Arrange
+                InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
 
-        AdoptionApplication application = new AdoptionApplication(
-                new AdoptionApplicationId("application-001"),
-                new PetId("pet-001"),
-                new ApplicantEmail("applicant@example.com"));
+                AdoptionApplication application = new AdoptionApplication(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"));
 
-        // Act
-        AdoptionApplication savedApplication = repository.save(application);
+                // Act
+                AdoptionApplication savedApplication = repository.save(application);
 
-        // Assert
-        assertSame(application, savedApplication);
-        assertTrue(repository.existsByPetIdAndApplicantEmail(
-                application.getPetId(),
-                application.getApplicantEmail()));
-    }
+                // Assert
+                assertSame(application, savedApplication);
+                assertTrue(repository.existsByPetIdAndApplicantEmail(
+                                application.getPetId(),
+                                application.getApplicantEmail()));
+        }
 
-    @Test
-    void shouldReturnFalseWhenRepositoryIsEmpty() {
-        // Arrange
-        InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
+        @Test
+        void shouldReturnFalseWhenRepositoryIsEmpty() {
+                // Arrange
+                InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
 
-        // Act
-        boolean applicationExists = repository.existsByPetIdAndApplicantEmail(
-                new PetId("pet-001"),
-                new ApplicantEmail("applicant@example.com"));
+                // Act
+                boolean applicationExists = repository.existsByPetIdAndApplicantEmail(
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"));
 
-        // Assert
-        assertFalse(applicationExists);
-    }
+                // Assert
+                assertFalse(applicationExists);
+        }
 
-    @Test
-    void shouldReturnFalseWhenPetIdDoesNotMatch() {
-        // Arrange
-        InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
+        @Test
+        void shouldReturnFalseWhenPetIdDoesNotMatch() {
+                // Arrange
+                InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
 
-        AdoptionApplication application = new AdoptionApplication(
-                new AdoptionApplicationId("application-001"),
-                new PetId("pet-001"),
-                new ApplicantEmail("applicant@example.com"));
+                AdoptionApplication application = new AdoptionApplication(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"));
 
-        repository.save(application);
+                repository.save(application);
 
-        // Act
-        boolean applicationExists = repository.existsByPetIdAndApplicantEmail(
-                new PetId("pet-002"),
-                application.getApplicantEmail());
+                // Act
+                boolean applicationExists = repository.existsByPetIdAndApplicantEmail(
+                                new PetId("pet-002"),
+                                application.getApplicantEmail());
 
-        // Assert
-        assertFalse(applicationExists);
-    }
+                // Assert
+                assertFalse(applicationExists);
+        }
 
-    @Test
-    void shouldReturnFalseWhenApplicantEmailDoesNotMatch() {
-        // Arrange
-        InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
+        @Test
+        void shouldReturnFalseWhenApplicantEmailDoesNotMatch() {
+                // Arrange
+                InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
 
-        AdoptionApplication application = new AdoptionApplication(
-                new AdoptionApplicationId("application-001"),
-                new PetId("pet-001"),
-                new ApplicantEmail("applicant@example.com"));
+                AdoptionApplication application = new AdoptionApplication(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"));
 
-        repository.save(application);
+                repository.save(application);
 
-        // Act
-        boolean applicationExists = repository.existsByPetIdAndApplicantEmail(
-                application.getPetId(),
-                new ApplicantEmail("another@example.com"));
+                // Act
+                boolean applicationExists = repository.existsByPetIdAndApplicantEmail(
+                                application.getPetId(),
+                                new ApplicantEmail("another@example.com"));
 
-        // Assert
-        assertFalse(applicationExists);
-    }
+                // Assert
+                assertFalse(applicationExists);
+        }
+
+        @Test
+        void shouldFindApplicationById() {
+                // Arrange
+                InMemoryAdoptionApplicationRepository repository = new InMemoryAdoptionApplicationRepository();
+
+                AdoptionApplication application = new AdoptionApplication(
+                                new AdoptionApplicationId("application-001"),
+                                new PetId("pet-001"),
+                                new ApplicantEmail("applicant@example.com"));
+
+                repository.save(application);
+
+                // Act
+                AdoptionApplication result = repository.findById(
+                                application.getId()).orElseThrow();
+
+                // Assert
+                assertSame(application, result);
+        }
 }

@@ -1,5 +1,7 @@
 package cl.entrepatas.application.usecase;
 
+import java.util.UUID;
+
 import cl.entrepatas.domain.entity.AdoptionApplication;
 import cl.entrepatas.domain.exception.DuplicateApplicationException;
 import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
@@ -11,12 +13,13 @@ public class CreateAdoptionApplicationUseCase {
 
     private final AdoptionApplicationRepository repository;
 
-    public CreateAdoptionApplicationUseCase(AdoptionApplicationRepository repository) {
+    public CreateAdoptionApplicationUseCase(
+            AdoptionApplicationRepository repository) {
+
         this.repository = repository;
     }
 
     public AdoptionApplication createApplication(
-            AdoptionApplicationId applicationId,
             PetId petId,
             ApplicantEmail applicantEmail) {
 
@@ -30,7 +33,7 @@ public class CreateAdoptionApplicationUseCase {
         }
 
         AdoptionApplication application = new AdoptionApplication(
-                applicationId,
+                new AdoptionApplicationId(UUID.randomUUID().toString()),
                 petId,
                 applicantEmail);
 

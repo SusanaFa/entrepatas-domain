@@ -1,6 +1,7 @@
 package cl.entrepatas.infrastructure.config;
 
 import cl.entrepatas.application.usecase.CreateAdoptionApplicationUseCase;
+import cl.entrepatas.application.usecase.GetAdoptionApplicationUseCase;
 import cl.entrepatas.domain.repository.AdoptionApplicationRepository;
 import cl.entrepatas.infrastructure.persistence.adapter.JpaAdoptionApplicationRepositoryAdapter;
 import cl.entrepatas.infrastructure.persistence.mapper.AdoptionApplicationPersistenceMapper;
@@ -49,6 +50,18 @@ class ApplicationConfigurationTest {
 
         // Act
         CreateAdoptionApplicationUseCase useCase = configuration.createAdoptionApplicationUseCase(repository);
+
+        // Assert
+        assertNotNull(useCase);
+    }
+
+    @Test
+    void shouldCreateGetAdoptionApplicationUseCase() {
+        // Arrange
+        AdoptionApplicationRepository repository = mock(AdoptionApplicationRepository.class);
+
+        // Act
+        GetAdoptionApplicationUseCase useCase = configuration.getAdoptionApplicationUseCase(repository);
 
         // Assert
         assertNotNull(useCase);
