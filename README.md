@@ -1,154 +1,265 @@
 # Entre Patas Domain
 
-Core de dominio en Java 17 para modelar reglas del proceso de adopción de mascotas.
+API REST para gestionar solicitudes de adopción de mascotas, construida con Java 17 y Spring Boot.
 
-Este repositorio corresponde a un ejercicio práctico de profundización en Java, diseño de dominio y testing automatizado. Implementa reglas de negocio sin depender de frameworks web, bases de datos o servicios externos.
+El proyecto mantiene las reglas de negocio independientes de los frameworks y agrega adaptadores para persistencia PostgreSQL, exposición HTTP y documentación OpenAPI.
 
 Forma parte del proyecto [Entre Patas y Hogares](https://github.com/SusanaFa/api-entrepatas).
 
-## Objetivo
-
-El proyecto permite:
+## Funcionalidades
 
 - Crear solicitudes de adopción con estado inicial `PENDING`.
-- Aprobar solicitudes pendientes.
-- Rechazar solicitudes pendientes.
+- Consultar una solicitud de adopción por su identificador.
+- Aprobar o rechazar solicitudes pendientes desde el dominio.
 - Impedir transiciones desde estados finales.
-- Evitar solicitudes duplicadas para una misma mascota y postulante.
+- Evitar solicitudes duplicadas para la misma mascota y correo de postulante.
+- Persistir solicitudes en PostgreSQL.
+- Exponer una API REST documentada con OpenAPI y Swagger UI.
+- Entregar errores HTTP con un formato estandarizado.
 
 ## Arquitectura
 
-El proyecto mantiene el dominio independiente de frameworks y utiliza una separación de capas inspirada en Clean Architecture y Ports and Adapters (Hexagonal). Se divide en las siguientes capas:
+El proyecto utiliza una separación de capas inspirada en Clean Architecture y Ports and Adapters.
 
-- **`domain`**: Modelo y reglas centrales del negocio. Es completamente independiente de frameworks, infraestructura o de las capas externas.
-- **`application`**: Coordinación de casos de uso (flujos). Depende de la capa `domain`.
-- **`infrastructure`**: Implementaciones concretas de los contratos (interfaces) definidos por el dominio. Depende de la capa `domain`.
-
-La regla de dependencias indica que **`application` e `infrastructure` dependen de `domain`**, pero **`domain` no depende de `application` ni de `infrastructure`**.
-
-### Diagrama de Dependencias
+- **`domain`**: entidades, Value Objects, reglas de negocio, excepciones y puertos. No depende de Spring, JPA ni PostgreSQL.
+- **`application`**: casos de uso que coordinan los flujos de negocio.
+- **`infrastructure`**: adaptadores concretos para JPA, PostgreSQL, configuración Spring y API REST.
 
 ```text
-CreateAdoptionApplicationUseCase (Capa Application)
-                |
-                v
-  AdoptionApplicationRepository  (Capa Domain / Contrato)
-                ^
-                |
-InMemoryAdoptionApplicationRepository (Capa Infrastructure / Adaptador)
+HTTP request
+    ↓
+REST controller + DTO
+    ↓
+Application use case
+    ↓
+Domain entity and repository port
+    ↓
+JPA repository adapter + mapper
+    ↓
+PostgreSQL
 ```
 
-- `CreateAdoptionApplicationUseCase` utiliza `AdoptionApplicationRepository`.
-- `AdoptionApplicationRepository` es una interfaz del dominio.
-- `InMemoryAdoptionApplicationRepository` implementa ese contrato. Esta implementación temporal en memoria pierde sus datos al finalizar la ejecución, y es utilizada como un adaptador sencillo para este ejercicio.
+La capa `domain` define el contrato `AdoptionApplicationRepository`. La infraestructura lo implementa mediante `JpaAdoptionApplicationRepositoryAdapter`, sin acoplar el dominio a JPA.
 
-## Estructura del Proyecto
+## Estructura principal
 
 ```text
 src/main/java/cl/entrepatas/
 ├── application/
 │   └── usecase/
-│       └── CreateAdoptionApplicationUseCase.java
 ├── domain/
 │   ├── entity/
-│   │   └── AdoptionApplication.java
 │   ├── exception/
-│   │   ├── DuplicateApplicationException.java
-│   │   └── InvalidStatusTransitionException.java
 │   ├── repository/
-│   │   └── AdoptionApplicationRepository.java
 │   └── valueobject/
-│       ├── AdoptionApplicationId.java
-│       ├── ApplicantEmail.java
-│       ├── ApplicationStatus.java
-│       └── PetId.java
 └── infrastructure/
-    └── repository/
-        └── InMemoryAdoptionApplicationRepository.java
+    ├── config/
+    ├── persistence/
+    │   ├── adapter/
+    │   ├── entity/
+    │   ├── mapper/
+    │   └── repository/
+    └── web/
+        ├── controller/
+        ├── dto/
+        └── error/
 ```
 
-### Estructura de Pruebas
+## Reglas de negocio
 
-Los tests se reflejan de la misma forma, respetando las capas reales en `src/test/java`:
+- Una solicitud nueva comienza en estado `PENDING`.
+- Una solicitud `PENDING` puede aprobarse o rechazarse.
+- Una solicitud `APPROVED` o `REJECTED` no puede cambiar de estado.
+- No puede existir más de una solicitud para la misma combinación de mascota y correo de postulante.
+- Si una solicitud no existe, la aplicación responde con un error `404`.
 
-- `application/usecase`
-- `domain/entity`
-- `domain/valueobject`
-- `infrastructure/repository`
+## Requisitos
 
-## Reglas de Negocio Implementadas
+- Java 17 o superior.
+- Maven 3.9 o superior.
+- Docker Desktop.
 
-### 1. Entidades y Value Objects
-- **`AdoptionApplication`**: Se representa como una entidad con identidad propia.
-- **`AdoptionApplicationId` y `PetId`**: Value Objects que funcionan como identificadores.
-- **`ApplicantEmail`**: Value Object de correo.
-- Los tres rechazan valores nulos o en blanco. Además, `ApplicantEmail` normaliza y valida el correo mediante las reglas simples implementadas.
-- **`ApplicationStatus`**: Representación de todos los estados posibles durante el ciclo de vida de una solicitud.
+## Base de datos local
 
-### 2. Creación de Solicitudes y Casos de Uso
-- El flujo de creación de solicitudes es coordinado por `CreateAdoptionApplicationUseCase`.
-- El caso de uso consulta `AdoptionApplicationRepository`. Si ya existe la combinación de mascota y postulante, lanza `DuplicateApplicationException`.
-- Al caso de uso (`CreateAdoptionApplicationUseCase`) se le inyecta la interfaz `AdoptionApplicationRepository` mediante su constructor, aplicando inyección de dependencias y respetando la inversión de dependencias.
-- En toda la capa `domain` y `application` existe una total ausencia de dependencias de frameworks.
+PostgreSQL se ejecuta mediante Docker Compose.
 
-### 3. Transiciones de Estado
-- Una solicitud se crea con estado inicial `PENDING`.
-- Puede pasar de `PENDING` a `APPROVED`.
-- Puede pasar de `PENDING` a `REJECTED`.
-- No puede cambiar desde un estado final (`APPROVED` o `REJECTED`). Si esto ocurre, lanza una `InvalidStatusTransitionException`.
-- Las solicitudes guardadas se mantienen temporalmente en memoria mediante `InMemoryAdoptionApplicationRepository` y se pierden al finalizar la ejecución.
+```bash
+docker compose up -d
+docker compose ps
+```
 
-## Cobertura de Código
+El contenedor queda disponible en:
 
-El proyecto exige 100% de cobertura de líneas y branches:
+| Propiedad | Valor |
+|---|---|
+| Motor | PostgreSQL 16 |
+| Host | `localhost` |
+| Puerto del host | `15432` |
+| Base de datos | `entrepatas` |
+| Usuario | `entrepatas` |
+| Contraseña de desarrollo | `entrepatas_dev` |
+
+Los datos se conservan en el volumen Docker `entrepatas_postgres_data`.
+
+Para detener el contenedor:
+
+```bash
+docker compose down
+```
+
+> Las credenciales anteriores son exclusivas para desarrollo local. En producción se utilizan variables de entorno.
+
+## Ejecución
+
+### Perfil de desarrollo
+
+El perfil `dev` conecta con PostgreSQL local, permite que Hibernate actualice el esquema y habilita Swagger.
+
+```bash
+mvn spring-boot:run "-Dspring-boot.run.profiles=dev"
+```
+
+La API queda disponible en:
+
+```text
+http://localhost:8080
+```
+
+### Perfil de producción
+
+El perfil `prod` requiere variables de entorno para la conexión y deshabilita Swagger.
+
+```bash
+export DB_URL="jdbc:postgresql://localhost:15432/entrepatas"
+export DB_USERNAME="entrepatas"
+export DB_PASSWORD="entrepatas_dev"
+
+mvn spring-boot:run "-Dspring-boot.run.profiles=prod"
+```
+
+En producción, Hibernate valida el esquema existente y no lo modifica automáticamente.
+
+## API REST
+
+### Crear una solicitud de adopción
+
+```http
+POST /api/v1/adoption-applications
+Content-Type: application/json
+```
+
+```json
+{
+  "petId": "pet-001",
+  "applicantEmail": "susana@example.com"
+}
+```
+
+Respuesta exitosa:
+
+```http
+201 Created
+```
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "petId": "pet-001",
+  "applicantEmail": "susana@example.com",
+  "status": "PENDING"
+}
+```
+
+Posibles respuestas:
+
+| Código | Situación |
+|---|---|
+| `201` | Solicitud creada |
+| `400` | Datos de entrada inválidos |
+| `422` | Ya existe una solicitud para esa mascota y correo |
+
+### Consultar una solicitud
+
+```http
+GET /api/v1/adoption-applications/{id}
+```
+
+Posibles respuestas:
+
+| Código | Situación |
+|---|---|
+| `200` | Solicitud encontrada |
+| `404` | No existe una solicitud con ese identificador |
+
+## Formato de errores
+
+La API utiliza una respuesta uniforme para los errores:
+
+```json
+{
+  "timestamp": "2026-08-29T02:30:34.5454618",
+  "status": 422,
+  "code": "DUPLICATE_ADOPTION_APPLICATION",
+  "message": "An application already exists for this pet and applicant",
+  "path": "/api/v1/adoption-applications"
+}
+```
+
+Códigos de error funcionales:
+
+| Código | Estado HTTP |
+|---|---:|
+| `VALIDATION_ERROR` | `400` |
+| `ADOPTION_APPLICATION_NOT_FOUND` | `404` |
+| `RESOURCE_NOT_FOUND` | `404` |
+| `DUPLICATE_ADOPTION_APPLICATION` | `422` |
+
+## OpenAPI y Swagger
+
+Con el perfil `dev` activo:
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- Documento OpenAPI: `http://localhost:8080/v3/api-docs`
+
+La documentación incluye los endpoints, DTOs, ejemplos de solicitudes y respuestas, y los códigos HTTP documentados.
+
+Con el perfil `prod`, Swagger UI y `/v3/api-docs` están deshabilitados y responden `404`.
+
+## Tests y cobertura
+
+Para ejecutar la verificación completa:
+
+```bash
+mvn verify
+```
+
+El proyecto exige y valida mediante JaCoCo:
 
 ```text
 Line coverage: 100%
 Branch coverage: 100%
 ```
 
-## Dependencias
-
-El dominio no tiene dependencias de ejecución externas. Para testing y control de calidad utiliza:
-
-- **JUnit 5**: pruebas unitarias.
-- **Mockito**: simulación del puerto de persistencia para aislar el caso de uso durante las pruebas.
-- **JaCoCo**: medición y validación de cobertura.
-- **Maven Surefire**: ejecución de pruebas.
-
-El proyecto no utiliza Spring, JPA, bases de datos ni servicios externos.
-
-## Requisitos
-
-- Java 17 o superior.
-- Maven 3.9 o superior.
-
-## Ejecución de Tests
-
-Para compilar, ejecutar los tests y verificar el código:
-
-```bash
-mvn clean compile
-mvn test
-mvn clean verify
-```
-
-El comando `mvn clean verify` ejecuta la verificación completa y además valida un **100 % de cobertura de líneas y ramas** mediante JaCoCo.
-El reporte de cobertura se genera en:
+El reporte HTML se genera en:
 
 ```text
 target/site/jacoco/index.html
 ```
 
-## Cómo Extender el Dominio
+## Tecnologías
 
-Para agregar nuevas funcionalidades respetando la arquitectura:
-
-1. Agregar o modificar reglas de negocio creando nuevas entidades, Value Objects o excepciones en `domain/entity`, `domain/valueobject` o `domain/exception`.
-2. Agregar nuevos contratos en `domain/repository` si es necesario.
-3. Extender la capa de aplicación implementando nuevos casos de uso en `application/usecase`, comunicándose mediante las interfaces previamente definidas, e inyectándolas por constructor.
-4. Implementar los contratos como adaptadores correspondientes en la capa de `infrastructure/repository`.
-5. Asegurar un 100% de cobertura incluyendo pruebas en las carpetas correspondientes en `src/test/java/cl/entrepatas/`.
+- Java 17
+- Spring Boot
+- Spring Web
+- Spring Data JPA
+- Hibernate
+- PostgreSQL
+- Docker Compose
+- OpenAPI / Springdoc / Swagger UI
+- JUnit 5
+- Mockito
+- JaCoCo
+- Maven
 
 ## Autor
 
